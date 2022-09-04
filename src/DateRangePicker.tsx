@@ -12,9 +12,15 @@ import Month from "./Month";
 import Button from "./Button";
 require("moment/min/locales.min");
 
-interface IResponse {
+export interface IResponse {
   firstDate: string | moment.Moment;
   secondDate: string | moment.Moment;
+}
+
+export enum CalendarRangeSelection {
+  ENTIRE = 'ENTIRE',
+  WITHIN_MONTH = 'WITHIN_MONTH',
+  WITHIN_DAY = 'WITHIN_DAY'
 }
 
 interface IProps {
@@ -27,6 +33,7 @@ interface IProps {
   selectedDateContainerStyle?: ViewStyle;
   selectedDateStyle?: TextStyle;
   ln?: string;
+  calendarRangeSelection?: CalendarRangeSelection
   onConfirm?: () => void;
   onClear?:() => void;
   clearBtnTitle?: string;
@@ -43,6 +50,7 @@ const DateRangePicker = ({
   selectedDateContainerStyle,
   selectedDateStyle,
   ln = "en",
+  calendarRangeSelection = CalendarRangeSelection.ENTIRE,
   onConfirm,
   onClear,
   clearBtnTitle = "Clear",
@@ -53,10 +61,17 @@ const DateRangePicker = ({
   const [firstDate, setFirstDate] = useState<moment.Moment | null>(null);
   const [secondDate, setSecondDate] = useState<moment.Moment | null>(null);
 
-  const lastMonth = selectedDate.clone().subtract(1, "months");
-  const lastYear = selectedDate.clone().subtract(1, "years");
-  const nextMonth = selectedDate.clone().add(1, "months");
-  const nextYear = selectedDate.clone().add(1, "years");
+  let [lastMonth, nextMonth, lastYear, nextYear]: Array<moment.Moment | null> = [null,null,null,null]
+  if (calendarRangeSelection !== CalendarRangeSelection.WITHIN_DAY) {
+    lastMonth = selectedDate.clone().subtract(1, "months");
+    nextMonth = selectedDate.clone().add(1, "months");
+  }
+  if (calendarRangeSelection === CalendarRangeSelection.ENTIRE) {
+    lastYear = selectedDate.clone().subtract(1, "years");
+    nextYear = selectedDate.clone().add(1, "years");
+  }
+
+
 
   moment.locale(ln);
 
@@ -124,43 +139,43 @@ const DateRangePicker = ({
 
   return (
     <View>
-      <View style={styles.titleRow}>
+      {calendarRangeSelection === CalendarRangeSelection.ENTIRE && <View style={styles.titleRow}>
         <Button
           font={font}
-          disabled={minDate ? lastYear.isBefore(minDate, "months") : false}
-          label={`< ${lastYear.format("YYYY")}`}
-          onPress={() => setSelectedDate(lastYear)}
+          disabled={minDate ? lastYear!.isBefore(minDate, "months") : false}
+          label={`< ${lastYear!.format("YYYY")}`}
+          onPress={() => setSelectedDate(lastYear!)}
         />
         <Text style={{ ...styles.title, fontFamily: font }}>
           {selectedDate.format("YYYY")}
         </Text>
         <Button
           font={font}
-          disabled={maxDate ? nextYear.isAfter(maxDate, "months") : false}
-          label={`${nextYear.format("YYYY")} >`}
-          onPress={() => setSelectedDate(nextYear)}
+          disabled={maxDate ? nextYear!.isAfter(maxDate, "months") : false}
+          label={`${nextYear!.format("YYYY")} >`}
+          onPress={() => setSelectedDate(nextYear!)}
           align="right"
         />
-      </View>
+      </View>}
 
-      <View style={styles.titleRow}>
+      {calendarRangeSelection !== CalendarRangeSelection.WITHIN_DAY && <View style={styles.titleRow}>
         <Button
           font={font}
-          disabled={minDate ? lastMonth.isBefore(minDate, "months") : false}
-          label={`< ${lastMonth.locale(ln).format("MMM")}`}
-          onPress={() => setSelectedDate(lastMonth)}
+          disabled={minDate ? lastMonth!.isBefore(minDate, "months") : false}
+          label={`< ${lastMonth!.locale(ln).format("MMM")}`}
+          onPress={() => setSelectedDate(lastMonth!)}
         />
         <Text style={{ ...styles.title, fontFamily: font }}>
           {selectedDate.locale(ln).format("MMMM")}
         </Text>
         <Button
           font={font}
-          disabled={maxDate ? nextMonth.isAfter(maxDate, "months") : false}
-          label={`${nextMonth.locale(ln).format("MMM")} >`}
-          onPress={() => setSelectedDate(nextMonth)}
+          disabled={maxDate ? nextMonth!.isAfter(maxDate, "months") : false}
+          label={`${nextMonth!.locale(ln).format("MMM")} >`}
+          onPress={() => setSelectedDate(nextMonth!)}
           align="right"
         />
-      </View>
+      </View>}
       <Month
         font={font}
         selectedDate={selectedDate}

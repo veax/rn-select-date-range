@@ -1,5 +1,5 @@
-import DateRangePicker from "./DateRangePicker";
+import DateRangePicker, {CalendarRangeSelection, IResponse} from "./DateRangePicker";
 import Month from "./Month";
 
-export { Month };
+export { Month, CalendarRangeSelection, IResponse };
 export default DateRangePicker;
