@@ -33,6 +33,7 @@ interface IProps {
   selectedDateContainerStyle?: ViewStyle;
   selectedDateStyle?: TextStyle;
   ln?: string;
+  initialDates?: IResponse | null
   calendarRangeSelection?: CalendarRangeSelection
   onConfirm?: () => void;
   onClear?:() => void;
@@ -50,6 +51,7 @@ const DateRangePicker = ({
   selectedDateContainerStyle,
   selectedDateStyle,
   ln = "en",
+  initialDates,
   calendarRangeSelection = CalendarRangeSelection.ENTIRE,
   onConfirm,
   onClear,
@@ -58,8 +60,10 @@ const DateRangePicker = ({
 }: IProps) => {
   const [selectedDate, setSelectedDate] = useState(moment());
 
-  const [firstDate, setFirstDate] = useState<moment.Moment | null>(null);
-  const [secondDate, setSecondDate] = useState<moment.Moment | null>(null);
+  const initialFirstDate = initialDates?.firstDate ? moment(initialDates.firstDate, responseFormat) : null
+  const initialSecondDate = initialDates?.secondDate ? moment(initialDates.secondDate, responseFormat) : null
+  const [firstDate, setFirstDate] = useState<moment.Moment | null>(initialFirstDate);
+  const [secondDate, setSecondDate] = useState<moment.Moment | null>(initialSecondDate);
 
   let [lastMonth, nextMonth, lastYear, nextYear]: Array<moment.Moment | null> = [null,null,null,null]
   if (calendarRangeSelection !== CalendarRangeSelection.WITHIN_DAY) {
